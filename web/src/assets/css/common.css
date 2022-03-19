@@ -208,3 +208,8 @@ a:hover {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
 }
+
+.clear{
+    overflow: hidden;
+    clear: both;
+}

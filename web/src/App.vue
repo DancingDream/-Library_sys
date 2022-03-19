@@ -1,24 +1,9 @@
 <template>
   <div id="app">
-    <Home />
-    <Bookrack />
+    <router-view></router-view>
   </div>
 </template>
 
-<script>
-
-import Home from '@/components/Home'
-import Bookrack from '@/views/Bookrack'
-
-export default {
-  name:"app",
-  components:{
-    Home,
-    Bookrack
-  }
-}
-
-    Home</script>
 
 <style lang="scss">
 #app {

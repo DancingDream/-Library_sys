@@ -4,16 +4,16 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const routes = [
-//  {
-//     path: '/',
-//     name: 'Home',
-//     component: Home
-//   },  
-  // {
-  //   path:'/Bookrack',
-  //   name:'Bookrack',
-  //   component:() => import("@/views/Bookrack")
-  // }
+ {
+    path: '/',
+    name: 'Home',
+    component:require("../views/Home.vue").default
+  },
+  {
+    path:'/Bookrack',
+    name:'Bookrack',
+    component:() => import('../views/Bookrack.vue')
+  }
   // {
   //   path: '/about',
   //   name: 'About',
