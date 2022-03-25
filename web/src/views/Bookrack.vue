@@ -39,7 +39,7 @@
         <li>{{item.publicationYear}}</li>
         <li>{{item.ISBN}}</li>
         <li>{{item.pagination}}</li>
-        <li>{{item.cover}}</li>
+        <li><img src=item.cover><p>{{console.log(item.cover)}}</p></li>
         <li>{{item.quantity}}</li>
         <li>{{item.surplus}}</li>
         <li>{{item.location}}</li>
@@ -70,7 +70,8 @@
       mounted(){
         getBooks().then(res =>{
           console.log(res);
-          this.books = res.msg;
+          this.books = res.data;
+          console.log(this.books);
         });
       }
     }
