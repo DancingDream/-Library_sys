@@ -35,6 +35,7 @@
 <script>
 
 	import { login } from '../api/index.js'
+	import initMenu from "../utils/menu";
 
     export default {
         
@@ -65,7 +66,8 @@
 						login(this.loginForm).then(res => {
 							this.$store.commit('setToken', res.data.token);
 							sessionStorage.setItem("token", res.data.token);
-							this.$router.push('/home');
+							initMenu(this.$router, this.$store);
+							this.$router.push('/index');
 						});
 					}
 					else

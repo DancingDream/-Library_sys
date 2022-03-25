@@ -6,12 +6,17 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     token: null,
+    menus: [],
   },
 
   getters: {
 		
 		getToken: state => {
 			return state.token
+		},
+
+    getMenus: state => {
+			return state.menus
 		},
   },
 
@@ -21,6 +26,12 @@ export default new Vuex.Store({
 		},
 		clearToken: (state) =>{
 			state.token = null;
+		},
+    setMenus: (state, menus) =>{
+			state.menus = menus;
+		},
+		clearMenus: (state) =>{
+			state.menus = [];
 		},
   },
   actions: {

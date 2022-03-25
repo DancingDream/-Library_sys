@@ -13,15 +13,20 @@
 						</el-form-item>
 						<!-- 一次密码 -->
 						<el-form-item prop="passWord">
-							<el-input type="text" 
+							<el-input type="passWord" 
                                 v-model="registerForm.passWord" suffix-icon="el-icon-lock" 
                                 placeholder="请输入您的密码"></el-input>
 						</el-form-item>
 						<!-- 二次密码 -->
 						<el-form-item prop="repassWord">
-							<el-input type="text" 
+							<el-input type="passWord" 
                                 v-model="registerForm.repassWord" suffix-icon="el-icon-lock"
                                 placeholder="请再次输入您的密码"></el-input>
+						</el-form-item>
+						<el-form-item prop="name">
+							<el-input type="text" 
+                                v-model="registerForm.name" suffix-icon="el-icon-suitcase"
+                                placeholder="请输入您的姓名"></el-input>
 						</el-form-item>
 						<el-form-item prop="jobNum">
 							<el-input type="text" 
@@ -74,7 +79,7 @@
         			this.changeFlag = 1;
         			callback()
       			}
-    		}
+    		};
 
 			//二次密码检验正确性
 			const pwdAgainCheck = async(rule, value, callback) => {
@@ -90,6 +95,15 @@
       			}
     		};
 
+			const phoneCheck = async(rule, value, callback) => {
+				let telText=/^1\d{10}$/
+				if(!telText.test(value)){
+					return callback(new Error('请正确输入手机号码'));
+				}else{
+					callback()
+				}
+			}
+
             return {
 				changeFlag: 0,
 				changeAgainFlag :0,
@@ -98,6 +112,7 @@
 					adminID: '',
 					passWord: '',
 					repassWord: '',
+					name: '',
 					jobNum:'',
 					phone:''
 				},
@@ -120,6 +135,11 @@
 						validator: pwdAgainCheck,
 						trigger: 'blur'
 					}],
+					name: [{
+						required: true,
+						 message: '用户姓名必须输入',
+						trigger: 'blur'
+					}],
 					jobNum: [{
 						required: true,
 						message: '用户工号必须输入',
@@ -127,21 +147,14 @@
 					}],
 					phone: [{
 						required: true,
-						message: '用户手机号必须输入',
+						// message: '用户手机号必须输入',
+						validator: phoneCheck,
 						trigger: 'blur'
 					}],
 				},
-
-				// ruleValidate: {
-          		// 	password: [
-              	// 		{ required: true,  trigger: 'blur' }
-          		// 	],
-          		// 	repassWord: [
-              	// 		{ required: true,  trigger: 'blur' }
-          		// 	]
-      			// }
             }
         },
+
 		methods:{
 
 			goLogin(){
@@ -150,9 +163,7 @@
 
 			//判定是否post是否成功，成功跳转到登陆页
 			submitForm(name){
-				console.log(this.registerForm.passWord);
-				console.log(this.registerForm.repassWord);
-				console.log(this.$refs[name].validate);
+				
           		this.$refs[name].validate((valid) => {
               		if (valid) {
 						register(this.registerForm).then(res =>{
@@ -160,7 +171,7 @@
 				 				message: res.msg,
 				 				type: 'success',
 				 			});
-							console.log(this.res);
+							
 							if(res.code == 0){
 								this.$router.push('/');
 							}
@@ -169,27 +180,7 @@
               		else {
                   		this.$message.error('Fail!');
               		}
-          		})
-				// console.log(registerForm.password)
-				// console.log(registerForm.repassWord)
-				// if(changeFlag == 1 || changeAgainFlag == 1){
-				// 	register(this.registerForm).then(res =>{
-				// 	console.log(res);
-					
-				// 	
-				// 		
-				// 	});
-				// }
-				// else{
-            	// 	this.$message({
-              	// 		type: 'error',
-              	// 		message: '注册失败，请重新注册',
-				// 		center: true,
-            	// 	});
-						  
-          			
-				// }
-				
+          		})	
 			}	
 		}
 	}
