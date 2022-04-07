@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "欢迎登录",
+  "enablePullDownRefresh": false,
+  "navigationStyle": "custom",
+  "usingComponents": {}
+}
