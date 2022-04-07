@@ -4,11 +4,14 @@ import {
 	Message
 } from 'element-ui'
 
-axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+// axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
 const service = axios.create({
 	baseURL: 'http://localhost:8000/api',
-	timeout: 15000 
+	timeout: 15000,
+	header: {
+		['Content-Type']: 'application/x-www-form-urlencoded'
+	} 
 })
 
 service.interceptors.request.use(config => {

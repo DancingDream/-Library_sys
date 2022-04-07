@@ -1,11 +1,11 @@
 <template>
-    <el-container>
+    <el-container class="clear">
         <el-header>
             <Header></Header>    
         </el-header>
         
-        <el-container>
-            <el-aside width="200px">
+        <el-container >
+            <el-aside width="150px">
                 <Menu :menuList="this.$store.state.menus.children"></Menu>
             </el-aside>
             <el-main>
@@ -23,9 +23,13 @@
         name: '',
         data() {
             return {
-                
+               
+              isRouterAlive: true
+     
             };
         },
+
+        
 
         components:{
             Header,
@@ -33,7 +37,12 @@
         },
 
         methods:{
-
+          reload () {
+            this.isRouterAlive = false
+            this.$nextTick(function () {
+              this.isRouterAlive = true
+            })
+          }
         }
     }
 </script>
@@ -46,6 +55,7 @@
     line-height: 60px;
     border-bottom: 1px solid #fff;
     width: 100%;
+    position: fixed;
   }
 
   .el-aside {
@@ -54,6 +64,8 @@
     text-align: center;
     line-height: 200px;
     height: 93.5vh;
+    position: fixed;
+    top:60px;
   }
 
   .el-main {
@@ -61,6 +73,11 @@
     color: #333;
     text-align: center;
     /* line-height: 160px; */
+    position: fixed;
+    top:60px;
+    left: 200px;
+    height: 93.5vh;
+    width: 180vh;
   }
   .el-container{
     height: 100%;
