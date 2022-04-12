@@ -206,6 +206,7 @@
             :disabled="!this.cacheBookForm.state"
           ></el-input>
         </el-form-item>
+        
 
         <el-form-item label="权重">
           <el-input
@@ -214,7 +215,7 @@
             autocomplete="off"
           ></el-input>
         </el-form-item>
-        <el-radio-group v-model="cacheBookForm.state">
+        <el-radio-group v-model="cacheBookForm.state" v-if="showAmen">
           <el-radio :label="true">已添加</el-radio>
           <el-radio :label="false">未添加</el-radio>
         </el-radio-group>
@@ -362,6 +363,7 @@ export default {
 
       showAddInfoFlag: false,
       showSeeInfoFlag: false,
+      showAmen: false,
 
       dataList: "",
       dialogImageUrl: "",
@@ -405,6 +407,7 @@ export default {
     addBookMenu() {
       this.showAddInfoFlag = true;
       this.initNewBook();
+      this.showSurplus = false;
     },
 
     //关闭添加界面
@@ -416,6 +419,7 @@ export default {
     amenBookMenuIndex(index) {
       this.cacheBookForm = this.activeinHouseList[index];
       this.showAddInfoFlag = true;
+      this.showSurplus = true;
     },
 
     //详细页打开修改界面

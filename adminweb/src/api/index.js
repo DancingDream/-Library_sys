@@ -36,6 +36,12 @@ export function updLoginUserPwd(token, newPwd) {
 	return http.post('/admin/pwd/', { token: token, newPwd: newPwd });
 }
 
+//获取首页信息
+export function getData() {
+
+	return http.get('/admin/data/');
+}
+
 
 //书本类
 // 获取书本信息
@@ -84,11 +90,17 @@ export function amenNotice(param) {
 
 
 //用户类
+//获取用户信息
 export function getUsers() {
 
 	return http.get('/user/infos/');
 }
 
+//更新用户状态
+export function updateUserState(param) {
+
+	return http.post('/user/upState/', param);
+}
 
 // 记录类
 export function getRecord() {
@@ -96,7 +108,3 @@ export function getRecord() {
 	return http.get('/record/infos/');
 }
 
-export function getData() {
-
-	return http.get('/record/data/');
-}

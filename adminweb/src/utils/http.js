@@ -11,16 +11,16 @@ const service = axios.create({
 	timeout: 15000,
 	header: {
 		['Content-Type']: 'application/x-www-form-urlencoded'
-	} 
+	}
 })
 
 service.interceptors.request.use(config => {
-	
-	if(config.method === "post"){
-		
-		config.data = qs.stringify(config.data,  { indices: false });
+
+	if (config.method === "post") {
+
+		config.data = qs.stringify(config.data, { indices: false });
 	}
-	
+
 	return config;
 }, error => {
 	Promise.reject(error)
@@ -34,7 +34,7 @@ service.interceptors.response.use(
 
 			return success.data;
 
-		}else if (success.data.code == 1){
+		} else if (success.data.code == 1) {
 
 			return success.data;
 		} else {

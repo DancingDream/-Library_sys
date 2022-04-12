@@ -20,7 +20,7 @@
         </el-table-column>
         <el-table-column prop="borrowerID" label="借书人" sortable>
         </el-table-column>
-        <el-table-column prop="reState" label="借书状态" sortable>
+        <el-table-column prop="state" label="借书状态" sortable>
         </el-table-column>
 
         <el-table-column prop="returnDate" label="还书时间" sortable>
@@ -34,68 +34,44 @@
 </template>
 
 <script>
+import { getRecord } from "../../api/index";
 
-    import {getRecord} from '../../api/index'
+export default {
+  name: "",
+  data() {
+    return {
+      recordInfos: [],
+      // reData:''
+    };
+  },
 
-    export default {
-        name: '',
-        data() {
-            return {
-                recordInfos:[],
-                // reData:''
-            }
-        },
+  methods: {
+    initRecord() {
+      getRecord().then((res) => {
+        this.recordInfos = res.data;
 
-        methods:{
-          initRecord(){
-            let nowDate = new Date;
-            let reDate = 0;
-            let postponeDate = 0;
-
-            getRecord().then(res =>{
-              this.recordInfos = res.data;
-              
-              for(let i in this.recordInfos){
-                if(this.recordInfos[i].state){
-                  this.recordInfos[i].reState = '在借中'
-                }else{
-                  this.recordInfos[i].reState = '已归还'
-                }
-
-                if(this.recordInfos[i].returnDate === 'None'){
-                  this.recordInfos[i].returnDate = '';
-                  reDate = nowDate;
-                }else{
-                  reDate = this.strToDate(this.recordInfos[i].returnDate)
-                }
-
-                postponeDate = this.strToDate(this.recordInfos[i].borrowDate) - reDate
-                console.log(postponeDate);
-                if(postponeDate <= this.recordInfos[i].deadline){
-                  this.recordInfos[i].postpone = '未延期'
-                }else{
-                  this.recordInfos[i].postpone = '已延期'
-                }
-
-              }
-              console.log(this.recordInfos);
-            })
-          },
-
-
-          strToDate(dateStr){
-	          var dateStr = dateStr.replace(/-/g, "/");//现将yyyy-MM-dd类型转换为yyyy/MM/dd
-	          var dateTime = Date.parse(dateStr);//将日期字符串转换为表示日期的秒数
-	          //注意：Date.parse(dateStr)默认情况下只能转换：月/日/年 格式的字符串，但是经测试年/月/日格式的字符串也能被解析
-	          var data = new Date(dateTime);//将日期秒数转换为日期格式
-          	return data;
+        for (let i in this.recordInfos) {
+          if (res.data[i].state) {
+            this.recordInfos[i].state = "在借中";
+          } else {
+            this.recordInfos[i].state = "已归还";
           }
-        },
 
-        mounted(){
-            this.initRecord();
+          if (res.data[i].postpone) {
+            this.recordInfos[i].postpone = "已延期";
+          } else {
+            this.recordInfos[i].postpone = "未延期";
+          }
         }
-    }
+        console.log(this.recordInfos);
+      });
+    },
+  },
+
+  mounted() {
+    this.initRecord();
+  },
+};
 </script>
 
 <style scoped>

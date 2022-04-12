@@ -13,7 +13,12 @@
     </el-header>
 
     <el-main>
-      <el-table :data="userForm" height="780" style="width: 100%">
+      <el-table
+        :data="userForm"
+        height="780"
+        style="width: 100%"
+        :row-class-name="tableRowClassName"
+      >
         <el-table-column prop="userID" label="用户账号" sortable>
         </el-table-column>
         <el-table-column prop="nickName" label="用户昵称" sortable>
@@ -53,13 +58,33 @@
                 </el-table-column> -->
         <el-table-column prop="borrowingBook" label="已借书本" sortable>
         </el-table-column>
+        <el-table-column prop="state" label="禁用状态" sortable>
+        </el-table-column>
+        <el-table-column label="禁用设置" sortable>
+          <template slot-scope="scope">
+            <el-button
+              @click="upUserState(scope.row)"
+              :disabled="scope.row.banState"
+              type="text"
+              size="small"
+              >禁用</el-button
+            >
+            <el-button
+              @click="upUserState(scope.row)"
+              :disabled="!scope.row.banState"
+              type="text"
+              size="small"
+              >解禁</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
     </el-main>
   </div>
 </template>
 
 <script>
-import { getUsers } from "../../api/index";
+import { getUsers, updateUserState } from "../../api/index";
 
 export default {
   name: "",
@@ -73,7 +98,33 @@ export default {
     initUsers() {
       getUsers().then((res) => {
         this.userForm = res.data;
+        for (let i in res.data) {
+          if (res.data[i].banState) {
+            this.userForm[i].state = "已禁用";
+          } else {
+            this.userForm[i].state = "未禁用";
+          }
+        }
       });
+    },
+
+    tableRowClassName({ row, rowIndex }) {
+      // console.log(row);
+      if (!row.banState) {
+        return "success-row";
+      }
+      return "";
+    },
+
+    upUserState(index) {
+      console.log(index)
+      updateUserState(index).then((res) => {
+        this.$message({
+          message: res.msg,
+          type: "success",
+        });
+      });
+      this.initUsers();
     },
   },
 
@@ -100,5 +151,17 @@ export default {
 
 .inline-input {
   float: right;
+}
+
+.el-link {
+  margin-right: 10px;
+}
+
+.el-table .warning-row {
+  background: oldlace;
+}
+
+.el-table .success-row {
+  background: #f0f9eb;
 }
 </style>
