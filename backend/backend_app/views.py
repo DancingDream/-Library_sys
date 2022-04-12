@@ -1,20 +1,13 @@
-from backend_app.img_processing.img import image_to_base64
-from backend_app.img_processing.img import bytes2cv
-
+import datetime
 import json
 import uuid
-import time
-import datetime
+
+from backend_app.function import other
 
 import requests
 from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.db import transaction
-from django.db.models import Q
-from django.db.models import Count
 from django.http import HttpResponse
 from django.views import View
-from django.utils import timezone
 
 from backend_app import models
 
@@ -83,6 +76,8 @@ class AdminView(BaseView):
             return AdminView.exit(request)
         elif module == 'info':
             return AdminView.getessionInfo(request)
+        elif module == 'data':
+            return AdminView.getRecordData(request)
         else:
             return BaseView.error()
 
@@ -184,12 +179,15 @@ class AdminView(BaseView):
 
         print(loginUser)
 
-        models.Admins.objects.filter(jobNum=loginUser['jobNum']).update(
-            name=request.POST.get('name'),
-            phone=request.POST.get('phone'),
-        )
+        if(models.Admins.objects.filter(userID=loginUser['userID'])):
+            return AdminView.error('用户账号已存在，请重新填写')
+        else:
+            models.Admins.objects.filter(jobNum=loginUser['jobNum']).update(
+                userID=request.POST.get('userID'),
+                phone=request.POST.get('phone'),
+            )
 
-        return BaseView.success()
+            return BaseView.success()
 
     '''
     修改登陆用户密码
@@ -204,6 +202,29 @@ class AdminView(BaseView):
         )
 
         return BaseView.success()
+
+    '''
+    用户端首页获取数据
+    '''
+    def getRecordData(request):
+        bookNum = models.Books.objects.filter(state=True)
+
+        today = datetime.date.today()
+
+        bookNum = bookNum.count()
+
+        boNum = models.Notices.objects.filter(addTime=today)
+        boNum = boNum.count()
+        reNum = models.Notices.objects.filter(amenTime=today)
+        reNum = reNum.count()
+
+        data ={
+            'bookNum': bookNum,
+            'reNum': reNum,
+            'boNum': boNum,
+        }
+
+        return BaseView.successData(data)
 
 
 '''
@@ -296,7 +317,7 @@ class BooksView((BaseView)):
             resl.append(temp)
 
         else:
-            key = '（key）'
+            key = '5932e79c50a64776805ff70883647676'
             url = 'https://api.ibook.tech/v1/book/isbn?isbn=' + newISBN + '&uKey=' +key
             resp = requests.get(url)
             data = resp.json()
@@ -387,7 +408,7 @@ class BooksView((BaseView)):
             'prospectus': request.POST.get('prospectus'),
             'location': request.POST.get('location'),
             'quantity': request.POST.get('quantity'),
-            'surplus': request.POST.get('surplus'),
+            'surplus': request.POST.get('quantity'),
             'weight': request.POST.get('weight'),
             'state': state,
         })
@@ -397,8 +418,16 @@ class BooksView((BaseView)):
     def amendBook(request):
         ISBN = request.POST.get('isbn')
         book = models.Books.objects.filter(ISBN=ISBN)
+        record = models.Record.objects.filter(
+            borrowerBook=book.first(),
+            state=True,
+        )
+
         if (book.exists()):
             book = book.first()
+
+            surplus = book.quantity - record.count()
+
             book.update(
                 bookName=request.POST.get('title'),
                 author=request.POST.get('author'),
@@ -417,7 +446,7 @@ class BooksView((BaseView)):
                 prospectus=request.POST.get('prospectus'),
                 location=request.POST.get('location'),
                 quantity=request.POST.get('quantity'),
-                surplus=request.POST.get('surplus'),
+                surplus=surplus,
                 weight=request.POST.get('weight'),
                 state=request.POST.get('state'),
             )
@@ -496,6 +525,8 @@ class UserView((BaseView)):
             return UserView.exit(request)
         elif module == 'infos':
             return UserView.getUsersInfo(request)
+        elif module == 'record':
+            return UserView.getUsersRecord(request)
         else:
             return BaseView.error()
 
@@ -504,6 +535,8 @@ class UserView((BaseView)):
             return UserView.register(request)
         elif module == 'login':
             return UserView.login(request)
+        elif module == 'upState':
+            return UserView.updateUserState(request)
         else:
             return BaseView.error()
 
@@ -528,6 +561,7 @@ class UserView((BaseView)):
                 phone=request.POST.get('phone'),
                 email=request.POST.get('email'),
                 borrowingBook=0,
+                banState=False,
             )
             return BaseView.success()
 
@@ -562,7 +596,8 @@ class UserView((BaseView)):
                     'email': userID.email,
                     'regDate': str(userID.regDate),
                     'borrowingBook': userID.borrowingBook,
-                }
+                    'banState': userID.banState
+               }
 
                 resl = {
                     'token': str(token)
@@ -599,6 +634,9 @@ class UserView((BaseView)):
 
         return BaseView.success()
 
+    '''
+    获取用户信息
+    '''
     def getUsersInfo(request):
         resl = []
         data = models.Uesr.objects.all().order_by('-regDate')
@@ -611,17 +649,34 @@ class UserView((BaseView)):
                 'email': item.email,
                 'regDate': str(item.regDate),
                 'borrowingBook': item.borrowingBook,
+                'banState': item.banState,
             }
             resl.append(temp)
         return BaseView.successData(resl)
 
+    '''
+    更新用户状态
+    '''
+    def updateUserState(request):
+        userID = request.POST.get('userID')
+        banState = request.POST.get('banState')
 
+        user = models.Uesr.objects.filter(userID=userID).first()
+        print(user.banState)
+
+        user.banState = bool(1-user.banState)
+        user.save()
+
+        return BaseView.success()
+
+
+'''
+记录类
+'''
 class RecordView((BaseView)):
     def get(self, request, module, *args, **kwargs):
         if module == 'infos':
             return RecordView.getRecordInfo(request)
-        elif module == 'data':
-            return RecordView.getRecordData(request)
         else:
             return BaseView.error()
 
@@ -633,6 +688,9 @@ class RecordView((BaseView)):
         else:
             return BaseView.error()
 
+    '''
+    借书
+    '''
     def boBook(request):
 
         name = request.POST.get('name')
@@ -648,22 +706,32 @@ class RecordView((BaseView)):
         book = models.Books.objects.filter(ISBN=isbn)
 
         if(user.exists()):
-            user = user.first();
+            user = user.first()
             if(book.exists()):
                 book = book.first()
-                if(user.borrowingBook <= 2 ):
+
+                if(book.surplus == 0):
+                    return RecordView.error('该书无库存')
+
+                elif(user.banState == True):
+                    return RecordView.error('用户已禁用，请联系管理员')
+
+                elif(user.borrowingBook <= 2 ):
                     # state报错，需要循环便利state列状态
                     if(record.exists()):
                          return RecordView.error('该书已借用')
 
-                    models.Record.objects.create(
-                        borrowerID=user,
-                        borrowerBook=book,
-                        deadline=30,
-                        state=True,
-                    )
+                    else:
+                        book.surplus = book.surplus -1
+                        book.save()
+                        models.Record.objects.create(
+                            borrowerID=user,
+                            borrowerBook=book,
+                            deadline=30,
+                            state=True,
+                        )
 
-                    return BaseView.success()
+                        return BaseView.success()
 
                 else:
                     return RecordView.error('借书超过上限')
@@ -672,6 +740,9 @@ class RecordView((BaseView)):
         else:
             return RecordView.error('个人信息错误，请重新填写')
 
+    '''
+    还书
+    '''
     def reBook(request):
 
         name = request.POST.get('name')
@@ -689,13 +760,16 @@ class RecordView((BaseView)):
         if (user.exists()):
             # user = user.first();
             if (book.exists()):
-                # book = book.first()
+                book = book.first()
 
                 if (record.exists()):
                     record.update(
-                        returnDate=datetime.date.today(),
+                        # returnDate=datetime.date.today(),
                         state=False,
                     )
+                    book.surplus = book.surplus + 1
+                    book.save()
+
 
                     return RecordView.success('成功还书')
 
@@ -708,37 +782,24 @@ class RecordView((BaseView)):
         else:
             return RecordView.error('个人信息错误，请重新填写')
 
+    '''
+    获取记录信息
+    '''
     def getRecordInfo(request):
-        resl = []
-        data = models.Record.objects.all().order_by('-borrowDate')
-        for item in data:
-            temp = {
-                'borrowerID': item.borrowerID.userName,
-                'borrowerBook': item.borrowerBook.bookName,
-                'borrowDate': str(item.borrowDate),
-                'returnDate': str(item.returnDate),
-                'deadline': item.deadline,
-                'state': item.state,
-            }
-            resl.append(temp)
+
+        data = models.Record.objects.all().order_by('-borrowDate', '-id')
+        resl = other.bookStateFunction(data)
         return BaseView.successData(resl)
 
-    def getRecordData(request):
-        bookNum = models.Books.objects.filter(state=True)
+    def getUsersRecord(request):
+        token = request.GET.get('token')
+        user = cache.get(token)
 
-        today = timezone.now()
 
-        bookNum = bookNum.count()
+        data = models.Record.objects.filter(
+            borrowerID=models.Uesr.objects.filter(userID=user.userID)
+        ).order_by('-borrowDate', '-id')
+        resl = RecordView.bookStateFunction(data)
 
-        boNum = models.Notices.objects.filter(addTime=today)
-        boNum = boNum.count()
-        reNum = models.Notices.objects.filter(amenTime=today)
-        reNum = reNum.count()
+        return BaseView.successData(resl)
 
-        data ={
-            'bookNum': bookNum,
-            'reNum': reNum,
-            'boNum': boNum,
-        }
-
-        return BaseView.successData(data)
