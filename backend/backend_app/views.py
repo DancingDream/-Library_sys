@@ -317,7 +317,7 @@ class BooksView((BaseView)):
             resl.append(temp)
 
         else:
-            key = '5932e79c50a64776805ff70883647676'
+            key = '（key）'
             url = 'https://api.ibook.tech/v1/book/isbn?isbn=' + newISBN + '&uKey=' +key
             resp = requests.get(url)
             data = resp.json()
