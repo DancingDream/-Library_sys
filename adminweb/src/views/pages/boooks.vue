@@ -215,7 +215,7 @@
             autocomplete="off"
           ></el-input>
         </el-form-item>
-        <el-radio-group v-model="cacheBookForm.state" v-if="showAmen">
+        <el-radio-group v-model="cacheBookForm.state" v-if="showAddInfoFlag">
           <el-radio :label="true">已添加</el-radio>
           <el-radio :label="false">未添加</el-radio>
         </el-radio-group>
@@ -363,7 +363,7 @@ export default {
 
       showAddInfoFlag: false,
       showSeeInfoFlag: false,
-      showAmen: false,
+      showAddButton: false,
 
       dataList: "",
       dialogImageUrl: "",
@@ -407,7 +407,8 @@ export default {
     addBookMenu() {
       this.showAddInfoFlag = true;
       this.initNewBook();
-      this.showSurplus = false;
+      
+      this.showAddButton = true;
     },
 
     //关闭添加界面

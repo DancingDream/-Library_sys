@@ -106,13 +106,14 @@ import {
   updLoginUserInfo,
   updLoginUserPwd,
 } from "../api/index";
+import {MD5} from "../js/MD5"
 
 export default {
   name: "",
   data() {
     var checkOldPwd = async (rule, value, callback) => {
       if (value) {
-        if (value === this.adminForm.passWord) {
+        if (MD5(value) === this.adminForm.passWord) {
           callback();
         } else {
           callback(new Error("密码错误！"));
@@ -297,7 +298,7 @@ export default {
     updPwd(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          updLoginUserPwd(this.$store.state.token, this.userPwd.newPwd).then(
+          updLoginUserPwd(this.$store.state.token, MD5(this.userPwd.newPwd)).then(
             (resp) => {
               this.$message({
                 message: resp.msg,

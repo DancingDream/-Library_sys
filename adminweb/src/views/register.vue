@@ -77,6 +77,7 @@
 
 <script>
 import { register } from "../api/index.js";
+import { MD5 } from "../js/MD5";
 
 export default {
   data() {
@@ -195,8 +196,13 @@ export default {
     //判定是否post是否成功，成功跳转到登陆页
     submitForm(name) {
       console.log(this.registerForm);
+      let str;
       this.$refs[name].validate((valid) => {
         if (valid) {
+          
+          this.registerForm.MD5passWord = MD5(this.registerForm.passWord);
+          this.registerForm.passWord = '';
+          this.registerForm.repassWord = '';
           register(this.registerForm).then((res) => {
             this.$message({
               message: res.msg,
@@ -205,10 +211,10 @@ export default {
 
             if (res.code == 0) {
               this.$router.push("/");
-            }
+            } 
           });
         } else {
-          this.$message.error("Fail!");
+          this.$message.error("请正确填写信息");
         }
       });
     },

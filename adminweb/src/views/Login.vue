@@ -44,6 +44,7 @@
 
 <script>
 import { login } from "../api/index.js";
+import { MD5 } from "../js/MD5";
 import initMenu from "../utils/menu";
 
 export default {
@@ -76,15 +77,22 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(this.loginForm);
+          this.loginForm.MD5passWord = MD5(this.loginForm.passWord);
+          this.loginForm.passWord = '',
           login(this.loginForm).then((res) => {
             this.$store.commit("setToken", res.data.token);
             sessionStorage.setItem("token", res.data.token);
             initMenu(this.$router, this.$store);
             this.$router.push("/index");
+            this.$message({
+              message: '登录成功',
+              type: "success",
+            });
           });
         } else return false;
       });
     },
+
     goRegister() {
       this.$router.push("/Register");
     },
